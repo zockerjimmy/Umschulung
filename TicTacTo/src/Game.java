@@ -5,8 +5,11 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 //Hauptfenster
+@SuppressWarnings("serial")
 public class Game extends JFrame
 {	
+	public static boolean isGameOver = false;
+	
 	public Game()
 	{
 		InitWindow();
@@ -46,9 +49,12 @@ public class Game extends JFrame
 						x = me.getX();
 						y = me.getY() - 25;
 						
-						playerInput.CheckPlayerInput(x,y);
-						game.repaint();
-						playerInput.CheckFields();
+						if(!isGameOver)
+						{							
+							playerInput.CheckPlayerInput(x,y);
+							playerInput.CheckFields();
+							game.repaint();
+						}
 					}
 				}
 			});
