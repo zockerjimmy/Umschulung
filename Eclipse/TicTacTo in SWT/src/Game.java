@@ -1,5 +1,3 @@
-import java.awt.Graphics;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.swt.graphics.*;
@@ -8,12 +6,20 @@ import org.eclipse.swt.events.*;
 public class Game extends MouseAdapter
 {
 	private Shell shell;
-	private Canvas canvas;
 
 	public static int[] field = new int[9];
 	public int[] fieldCoords = new int[36];
 
-	private GC gc;
+	enum player
+	{
+		Player1, Player2
+	};
+
+	public static player ePlayer = player.Player1;
+	private int actualField;
+	private boolean isGameOver = false;
+	private String output;
+	private Button button;
 
 	public Game(Display display)
 	{
@@ -58,43 +64,57 @@ public class Game extends MouseAdapter
 			}
 		});
 
-		shell.addListener(SWT.Paint, event -> DrawPlayfield(event));	
+		shell.addListener(SWT.Paint, event -> DrawGame(event));
 
-		//canvas = new Canvas(shell, SWT.NONE);
-		//WENN GAME OVER DISPOSE
-		 //gc = new GC(canvas);
-		 
-		shell.addMouseListener(new MouseListener() {
+		shell.addMouseListener(new MouseListener()
+		{
 			@Override
 			public void mouseDown(MouseEvent e)
-			{		
-				/*Point cursorLocation = Display.getCurrent().getCursorLocation();
+			{
+				Point cursorLocation = Display.getCurrent().getCursorLocation();
 				cursorLocation = Display.getCurrent().getFocusControl().toControl(cursorLocation);
-				DrawPlayerInput(cursorLocation.x, cursorLocation.y);*/
-				field[1] = 1;
-				shell.addListener(SWT.Paint, event -> DrawPlayerInputs(event));	
-				//canvas.getListeners(SWT.Paint);
-				//DrawPlayerInputs();
+
+				if (!isGameOver)
+				{
+					CheckPlayerInput(cursorLocation.x, cursorLocation.y);
+					CheckFields();
+					shell.redraw();
+				}
 			}
 
 			@Override
 			public void mouseDoubleClick(MouseEvent e)
 			{
 				// TODO Auto-generated method stub
-				
 			}
 
 			@Override
 			public void mouseUp(MouseEvent e)
 			{
 				// TODO Auto-generated method stub
-				
 			}
 		});
 
-		shell.open();
+		button = new Button(shell, SWT.PUSH);
+		button.setText("Reset");
+		button.setLocation(130, 50);
+		button.addSelectionListener(new SelectionListener()
+		{
+			public void widgetSelected(SelectionEvent event)
+			{
+				Reset();
+			}
 
-		// gc.dispose();
+			public void widgetDefaultSelected(SelectionEvent event)
+			{
+
+			}
+		});
+		button.setVisible(false);
+		button.pack();
+		shell.open();
+		SetFieldCoords();
+
 		while (!shell.isDisposed())
 		{
 			if (!display.readAndDispatch())
@@ -102,23 +122,37 @@ public class Game extends MouseAdapter
 		}
 	}
 
-	private void DrawPlayfield(Event e)
+	private void DrawGame(Event e)
 	{
 		GC gc = e.gc;
-
 		// Color c1 = new Color(e.display, 0,0,0);
-
 		gc.drawLine(100, 0, 100, 300);
 		gc.drawLine(200, 0, 200, 300);
 		gc.drawLine(0, 100, 300, 100);
 		gc.drawLine(0, 200, 300, 200);
 
+		DrawPlayerInputs(gc);
+
+		if (isGameOver)
+		{
+			if (ePlayer == player.Player1)
+			{
+				output = "Player 1 won!";
+			}
+			else output = "Player 2 won!";
+
+			Font font = new Font(e.display, "Tahoma", 18, SWT.BOLD);
+			gc.setFont(font);
+			gc.setForeground(e.display.getSystemColor(SWT.COLOR_WHITE));
+			gc.setBackground(e.display.getSystemColor(SWT.COLOR_BLUE));
+			gc.drawString(output, 65, 135);
+			button.setVisible(true);
+		}
 		gc.dispose();
 	}
 
-	private void DrawPlayerInputs(Event e)
+	private void DrawPlayerInputs(GC gc)
 	{
-		GC gc = e.gc;
 		int coordElement = 0;
 		for (int i = 0; i < field.length; i++)
 		{
@@ -133,22 +167,403 @@ public class Game extends MouseAdapter
 
 			if (field[i] == 1)
 			{
-				//gc.drawOval(fieldCoords[coordElement], fieldCoords[coordElement + 2], 100, 100);
-				e.gc.drawOval(0, 0, 100, 100);
+				gc.drawOval(fieldCoords[coordElement], fieldCoords[coordElement + 2], 100, 100);
 			}
 			else if (field[i] == 2)
 			{
-				/*DrawCross(g, fieldCoords[coordElement], fieldCoords[coordElement + 2], fieldCoords[coordElement + 1],
-						fieldCoords[coordElement + 3]);*/
-			}
-			else
-			{
-				 System.out.println(field[i]);
+				gc.drawLine(fieldCoords[coordElement], fieldCoords[coordElement + 2], fieldCoords[coordElement + 1],
+						fieldCoords[coordElement + 3]);
+				gc.drawLine(fieldCoords[coordElement], fieldCoords[coordElement + 3], fieldCoords[coordElement + 1],
+						fieldCoords[coordElement + 2]);
 			}
 		}
-		
-		//canvas.redraw();
+	}
 
+	public void CheckPlayerInput(int posX, int posY)
+	{
+		if (posX >= 0 && posX < 100 && posY >= 0 && posY < 100)
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[0] == 0)
+				{
+					field[0] = 1;
+				}
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[0] == 0)
+				{
+					field[0] = 2;
+				}
+			}
+			actualField = 0;
+		}
+		else if (posX >= 100 && posX < 200 && posY >= 0 && posY < 100)
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[1] == 0)
+				{
+					field[1] = 1;
+				}
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[1] == 0)
+				{
+					field[1] = 2;
+				}
+			}
+			actualField = 1;
+		}
+		else if (posX >= 200 && posX <= 300 && posY >= 0 && posY < 100)
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[2] == 0)
+				{
+					field[2] = 1;
+				}
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[2] == 0)
+				{
+					field[2] = 2;
+				}
+			}
+			actualField = 2;
+		}
+		else if (posX >= 0 && posX < 100 && posY >= 100 && posY < 200)
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[3] == 0)
+				{
+					field[3] = 1;
+				}
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[3] == 0)
+				{
+					field[3] = 2;
+				}
+			}
+			actualField = 3;
+		}
+		else if (posX >= 100 && posX < 200 && posY >= 100 && posY < 200)
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[4] == 0)
+				{
+					field[4] = 1;
+				}
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[4] == 0)
+				{
+					field[4] = 2;
+				}
+			}
+			actualField = 4;
+		}
+		else if (posX >= 200 && posX <= 300 && posY >= 100 && posY < 200)
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[5] == 0)
+				{
+					field[5] = 1;
+				}
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[5] == 0)
+				{
+					field[5] = 2;
+				}
+			}
+			actualField = 5;
+		}
+		else if (posX >= 0 && posX < 100 && posY >= 200 && posY <= 300)
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[6] == 0)
+				{
+					field[6] = 1;
+				}
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[6] == 0)
+				{
+					field[6] = 2;
+				}
+			}
+			actualField = 6;
+		}
+		else if (posX >= 100 && posX < 200 && posY >= 200 && posY <= 300)
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[7] == 0)
+				{
+					field[7] = 1;
+				}
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[7] == 0)
+				{
+					field[7] = 2;
+				}
+			}
+			actualField = 7;
+		}
+		else if (posX >= 200 && posX <= 300 && posY >= 200 && posY <= 300)
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[8] == 0)
+				{
+					field[8] = 1;
+				}
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[8] == 0)
+				{
+					field[8] = 2;
+				}
+			}
+			actualField = 8;
+		}
+		else
+		{
+			System.out.println("ERROR!");
+		}
+	}
+
+	public void CheckFields()
+	{
+		switch (actualField)
+		{
+		case 0:
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[0] == 1 && field[1] == 1 && field[2] == 1 || field[0] == 1 && field[4] == 1 && field[8] == 1
+						|| field[0] == 1 && field[3] == 1 && field[6] == 1)
+				{
+					isGameOver = true;
+					System.out.println("Player1 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[0] == 2 && field[1] == 2 && field[2] == 2 || field[0] == 2 && field[4] == 2 && field[8] == 2
+						|| field[0] == 2 && field[3] == 2 && field[6] == 2)
+				{
+					isGameOver = true;
+					System.out.println("Player2 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			break;
+		}
+		case 1:
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[0] == 1 && field[1] == 1 && field[2] == 1 || field[1] == 1 && field[4] == 1 && field[7] == 1)
+				{
+					isGameOver = true;
+					System.out.println("Player1 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[0] == 2 && field[1] == 2 && field[2] == 2 || field[0] == 2 && field[4] == 2 && field[8] == 2)
+				{
+					isGameOver = true;
+					System.out.println("Player2 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			break;
+		}
+		case 2:
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[0] == 1 && field[1] == 1 && field[2] == 1 || field[2] == 1 && field[5] == 1 && field[8] == 1
+						|| field[2] == 1 && field[4] == 1 && field[6] == 1)
+				{
+					isGameOver = true;
+					System.out.println("Player1 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[0] == 2 && field[1] == 2 && field[2] == 2 || field[2] == 2 && field[5] == 2 && field[8] == 2
+						|| field[2] == 2 && field[4] == 2 && field[6] == 2)
+				{
+					isGameOver = true;
+					System.out.println("Player2 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			break;
+		}
+		case 3:
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[3] == 1 && field[4] == 1 && field[5] == 1 || field[0] == 1 && field[3] == 1 && field[6] == 1)
+				{
+					isGameOver = true;
+					System.out.println("Player1 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[3] == 2 && field[4] == 2 && field[5] == 2 || field[0] == 2 && field[3] == 2 && field[6] == 2)
+				{
+					isGameOver = true;
+					System.out.println("Player2 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			break;
+		}
+		case 4:
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[3] == 1 && field[4] == 1 && field[5] == 1 || field[1] == 1 && field[4] == 1 && field[7] == 1
+						|| field[0] == 1 && field[4] == 1 && field[8] == 1
+						|| field[2] == 1 && field[4] == 1 && field[6] == 1)
+				{
+					isGameOver = true;
+					System.out.println("Player1 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[3] == 2 && field[4] == 2 && field[5] == 2 || field[1] == 2 && field[4] == 2 && field[7] == 2
+						|| field[0] == 2 && field[4] == 2 && field[8] == 2
+						|| field[2] == 2 && field[4] == 2 && field[6] == 2)
+				{
+					isGameOver = true;
+					System.out.println("Player2 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			break;
+		}
+		case 5:
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[2] == 1 && field[5] == 1 && field[8] == 1 || field[3] == 1 && field[4] == 1 && field[5] == 1)
+				{
+					isGameOver = true;
+					System.out.println("Player1 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[2] == 2 && field[5] == 2 && field[8] == 2 || field[3] == 2 && field[4] == 2 && field[5] == 2)
+				{
+					isGameOver = true;
+					System.out.println("Player2 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			break;
+		}
+		case 6:
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[0] == 1 && field[3] == 1 && field[6] == 1 || field[6] == 1 && field[7] == 1 && field[8] == 1
+						|| field[6] == 1 && field[4] == 1 && field[2] == 1)
+				{
+					isGameOver = true;
+					System.out.println("Player1 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[0] == 2 && field[3] == 2 && field[6] == 2 || field[6] == 2 && field[7] == 2 && field[8] == 2
+						|| field[6] == 2 && field[4] == 2 && field[2] == 2)
+				{
+					isGameOver = true;
+					System.out.println("Player2 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			break;
+		}
+		case 7:
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[6] == 1 && field[7] == 1 && field[8] == 1 || field[7] == 1 && field[4] == 1 && field[1] == 1)
+				{
+					isGameOver = true;
+					System.out.println("Player1 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[6] == 2 && field[7] == 2 && field[8] == 2 || field[7] == 2 && field[4] == 2 && field[1] == 2)
+				{
+					isGameOver = true;
+					System.out.println("Player2 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			break;
+		}
+		case 8:
+		{
+			if (ePlayer == player.Player1)
+			{
+				if (field[8] == 1 && field[5] == 1 && field[2] == 1 || field[6] == 1 && field[7] == 1 && field[8] == 1
+						|| field[8] == 1 && field[4] == 1 && field[0] == 1)
+				{
+					isGameOver = true;
+					System.out.println("Player1 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			else if (ePlayer == player.Player2)
+			{
+				if (field[8] == 2 && field[5] == 2 && field[2] == 2 || field[6] == 2 && field[7] == 2 && field[8] == 2
+						|| field[8] == 2 && field[4] == 2 && field[0] == 2)
+				{
+					isGameOver = true;
+					System.out.println("Player2 won");
+				}
+				else ePlayer = ePlayer == player.Player1 ? player.Player2 : player.Player1;
+			}
+			break;
+		}
+		}
 	}
 
 	private void SetFieldCoords()
@@ -206,6 +621,19 @@ public class Game extends MouseAdapter
 		fieldCoords[33] = 300; // x2
 		fieldCoords[34] = 200; // y1
 		fieldCoords[35] = 300; // y2
+	}
+
+	private void Reset()
+	{
+		System.out.println("Reset");
+		for (int i = 0; i < field.length; i++)
+		{
+			field[i] = 0;
+		}
+		isGameOver = false;
+		button.setVisible(false);
+		ePlayer = player.Player1;
+		shell.redraw();
 	}
 
 	public static void main(String[] args)
