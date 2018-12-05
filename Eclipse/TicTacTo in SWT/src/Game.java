@@ -73,7 +73,7 @@ public class Game extends MouseAdapter
 			{
 				Point cursorLocation = Display.getCurrent().getCursorLocation();
 				cursorLocation = Display.getCurrent().getFocusControl().toControl(cursorLocation);
-
+				
 				if (!isGameOver)
 				{
 					CheckPlayerInput(cursorLocation.x, cursorLocation.y);
@@ -81,13 +81,13 @@ public class Game extends MouseAdapter
 					shell.redraw();
 				}
 			}
-
+			
 			@Override
 			public void mouseDoubleClick(MouseEvent e)
 			{
 				// TODO Auto-generated method stub
 			}
-
+			
 			@Override
 			public void mouseUp(MouseEvent e)
 			{
