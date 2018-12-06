@@ -9,14 +9,16 @@ public class Game
 	private Shell shell;
 	private Canvas canvas;
 	private int slotPosx;
-	private int maxWidthField = 7;
-	private int maxHeightField = 6;
-	private int[][] slots = new int[maxHeightField][maxWidthField];
-	private int[][] slotsPosX = new int[maxHeightField][maxWidthField];
-	private int[][] slotsPosY = new int[maxHeightField][maxWidthField];
-	private int[][] slotsPosXEnd = new int[maxHeightField][maxWidthField];
-	private int[][] slotsPosYEnd = new int[maxHeightField][maxWidthField];
-
+	private int maxColums = 7;
+	private int maxRows = 6;
+	private int[][] slots = new int[maxRows][maxColums];
+	private int[][] slotsPosX = new int[maxRows][maxColums];
+	private int[][] slotsPosY = new int[maxRows][maxColums];
+	private int[][] slotsPosXEnd = new int[maxRows][maxColums];
+	private int[][] slotsPosYEnd = new int[maxRows][maxColums];
+	private String output;
+	private Button button;
+	
 	private enum ePlayer
 	{
 		Player1, Player2
@@ -82,6 +84,24 @@ public class Game
 
 		});
 
+		button = new Button(canvas, SWT.PUSH);
+		button.setText("Reset");
+		button.setLocation(130, 50);
+		button.addSelectionListener(new SelectionListener()
+		{
+			public void widgetSelected(SelectionEvent event)
+			{
+				Reset();
+			}
+
+			public void widgetDefaultSelected(SelectionEvent event)
+			{
+
+			}
+		});
+		button.setVisible(false);
+		button.pack();
+		
 		shell.open();
 		InitGame(display);
 
@@ -125,9 +145,8 @@ public class Game
 	private void DrawGame(Event event, Display display)
 	{
 		DrawGamefield(event, display);
-		//DrawPlayerInput(event, display);
 	}
-	
+
 	private void DrawGamefield(Event event, Display display)
 	{
 		GC gc = event.gc;
@@ -135,11 +154,11 @@ public class Game
 		gc.setBackground(display.getSystemColor(SWT.COLOR_BLUE));
 		gc.fillRectangle(clientArea);
 		gc.setBackground(display.getSystemColor(SWT.COLOR_BLACK));
-		
+
 		int slotWidth = clientArea.width / 10;
-		for (int i = 0; i < maxHeightField; i++)
+		for (int i = 0; i < maxRows; i++)
 		{
-			for (int j = 0; j < maxWidthField; j++)
+			for (int j = 0; j < maxColums; j++)
 			{
 				slotPosx = (slotWidth + (slotWidth * j)) + (5 * (j + 0));
 
@@ -147,37 +166,37 @@ public class Game
 				slotsPosXEnd[i][j] = slotPosx + slotWidth;
 				slotsPosY[i][j] = 40 * (i + 1);
 				slotsPosYEnd[i][j] = 40 * (i + 1) + slotWidth;
-				//slots[i][j] = 0;
-				
-				if(slots[i][j] == 0)
+
+				if (slots[i][j] == 0)
 				{
 					gc.setBackground(display.getSystemColor(SWT.COLOR_WHITE));
-					gc.fillOval(slotPosx, 40 * (i + 1), slotWidth, slotWidth);
+					gc.fillOval(slotPosx, slotsPosY[i][j], slotWidth, slotWidth);
 				}
-				if(slots[i][j] == 1)
+				if (slots[i][j] == 1)
 				{
 					gc.setBackground(display.getSystemColor(SWT.COLOR_YELLOW));
-					gc.fillOval(slotPosx, 40 * (i + 1), slotWidth, slotWidth);
+					gc.fillOval(slotPosx, slotsPosY[i][j], slotWidth, slotWidth);
 				}
-				if(slots[i][j] == 2)
+				if (slots[i][j] == 2)
 				{
 					gc.setBackground(display.getSystemColor(SWT.COLOR_RED));
-					gc.fillOval(slotPosx, 40 * (i + 1), slotWidth, slotWidth);
+					gc.fillOval(slotPosx, slotsPosY[i][j], slotWidth, slotWidth);
 				}
-
-				//System.out.print((j + (7 * i)) < 10 ? "0" + (j + (7 * i)) + " " : (j + (7 * i)) + " ");
 			}
+		}
+		
+		if(isGameOver)
+		{
+			Font font = new Font(event.display, "Tahoma", 18, SWT.BOLD);
+			gc.setFont(font);
+			gc.setForeground(event.display.getSystemColor(SWT.COLOR_WHITE));
+			gc.setBackground(event.display.getSystemColor(SWT.COLOR_DARK_GREEN));
+			gc.drawString(output, 65, 135);
+			button.setVisible(true);
 		}
 		gc.dispose();
 	}
 
-	private void DrawPlayerInput(Event event, Display display)
-	{
-		
-	}
-	
-	//https://stackoverflow.com/questions/32770321/connect-4-check-for-a-win-algorithm
-	
 	private void CheckPlayerInput(int x, int y)
 	{
 		for (int i = 0; i < 6; i++)
@@ -186,56 +205,134 @@ public class Game
 			{
 				if ((x >= slotsPosX[i][j] && y >= slotsPosY[i][j])
 						&& (x < slotsPosXEnd[i][j] && y < slotsPosYEnd[i][j]))
-				{				
-					CheckSlots(i, j);
+				{
+					DropCoin(i, j);
 					if (!isGameOver)
 					{
-					//	player = player == ePlayer.Player1 ? ePlayer.Player2 : ePlayer.Player1;
+						player = player == ePlayer.Player1 ? ePlayer.Player2 : ePlayer.Player1;
 					}
 				}
 			}
 		}
 	}
 
-	private void CheckSlots(int chosenSlotIndexI, int chosenSlotIndexJ)
+	private void DropCoin(int indexRow, int indexColum)
 	{
-		//check vertical
-		//chip fallen lassen dann alles andere check0rn
-		
-		
-		int counter = 1;
-		if (slots[chosenSlotIndexI][chosenSlotIndexJ] == 0)
-		{		
-			//check horizontal
+		int tempSlotRow = 0;
+
+		if (slots[0][indexColum] == 0)
+		{
 			if (player == ePlayer.Player1)
 			{
-				//canvas.notifyListeners(SWT.Paint, new Event());
-				canvas.redraw();
-				for (int i = 0; i < maxWidthField; i++)
-				{				
-					if (slots[chosenSlotIndexI][i] == 1)						
-						counter++;
-					else
-						counter = 1;
-					if (counter == 4)
-						System.out.println("win 1");
+				for (int i = 0; i < maxRows; i++)
+				{
+					if (slots[i][indexColum] == 0)
+						tempSlotRow = i;
 				}
-			} else if (player == ePlayer.Player2)
+				slots[tempSlotRow][indexColum] = 1;
+				canvas.redraw();
+			}
+			else if (player == ePlayer.Player2)
 			{
-				//slots[chosenSlotIndexI][chosenSlotIndexJ] = 2;	
-				//canvas.notifyListeners(SWT.Paint, new Event());
-				canvas.redraw();
-				for (int i = 0; i < maxWidthField; i++)
-				{				
-					if (slots[chosenSlotIndexI][i] == 1)
-						counter++;
-					else
-						counter = 1;
-					if (counter == 4)
-						System.out.println("win 1");
+				for (int i = 0; i < maxRows; i++)
+				{
+					if (slots[i][indexColum] == 0)
+						tempSlotRow = i;
 				}
+				slots[tempSlotRow][indexColum] = 2;
+				canvas.redraw();
+			}
+			CheckSlots();
+		}
+	}
+
+	private void CheckSlots()
+	{
+		int iPlayer = 1;
+
+		if (player == ePlayer.Player1)
+		{
+			iPlayer = 1;
+		}
+		else if (player == ePlayer.Player2)
+		{
+			iPlayer = 2;
+		}
+		
+		// horizontalCheck
+		for (int j = 0; j < maxColums - 3; j++)
+		{
+			for (int i = 0; i < maxRows; i++)
+			{
+				if (slots[i][j] == iPlayer && slots[i][j + 1] == iPlayer && slots[i][j + 2] == iPlayer
+						&& slots[i][j + 3] == iPlayer)
+				{
+					isGameOver = true;
+					break;
+				}
+			}
+		}
+		// verticalCheck
+		for (int j = 0; j < maxColums; j++)
+		{
+			for (int i = 0; i < maxRows - 3; i++)
+			{
+				if (slots[i][j] == iPlayer && slots[i + 1][j] == iPlayer && slots[i + 2][j] == iPlayer
+						&& slots[i + 3][j] == iPlayer)
+				{
+					isGameOver = true;
+					break;
+				}
+			}
+		}
+		// ascendingDiagonalCheck
+		for (int i = 3; i < maxRows; i++)
+		{
+			for (int j = 0; j < maxColums - 3; j++)
+			{
+				if (slots[i][j] == iPlayer && slots[i - 1][j + 1] == iPlayer && slots[i - 2][j + 2] == iPlayer
+						&& slots[i - 3][j + 3] == iPlayer)
+				{
+					isGameOver = true;
+					break;
+				}
+			}
+		}
+		// descendingDiagonalCheck
+		for (int i = 3; i < maxRows; i++)
+		{
+			for (int j = 3; j < maxColums; j++)
+			{
+				if (slots[i][j] == iPlayer && slots[i - 1][j - 1] == iPlayer && slots[i - 2][j - 2] == iPlayer
+						&& slots[i - 3][j - 3] == iPlayer)
+				{
+					isGameOver = true;
+					break;
+				}
+			}
+		}		
+		if (isGameOver)
+		{
+			if(isGameOver)
+			{				
+				output = player + " won";
 			}
 		}
 	}
 
+	private void Reset()
+	{
+		System.out.println("Reset");
+		for (int i = 0; i < maxRows; i++)
+		{
+			for (int j = 0; j < maxColums; j++)
+			{
+			slots[i][j] = 0;
+			}
+		}
+		isGameOver = false;
+		button.setVisible(false);
+		player = ePlayer.Player1;
+		canvas.redraw();
+	}
 }

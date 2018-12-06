@@ -9,6 +9,11 @@ import java.awt.event.MouseListener;
 public class Game extends JFrame
 {	
 	public static boolean isGameOver = false;
+	public static int[][] fields = new int[3][3];
+	public static int[][] fieldCoordX = new int[3][3];
+	public static int[][] fieldCoordY = new int[3][3];
+	public static int[][] fieldCoordXEnd = new int[3][3];
+	public static int[][] fieldCoordYEnd = new int[3][3];
 	
 	public Game()
 	{

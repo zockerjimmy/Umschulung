@@ -90,11 +90,13 @@ public class GamePanel extends JPanel
 	
 	private void ResetGame()
 	{
-		for(int i = 0; i < field.length; i++)
+		for (int i = 0; i < 3; i++)
 		{
-			field[i] = 0;
-		}
-		
+			for (int j = 0; j < 3; j++)
+			{
+			Game.fields[i][j] = 0;
+			}
+		}		
 		PlayerInput.ePlayer = PlayerInput.player.Player1;
 		Game.isGameOver = false;
 		button.setVisible(false);
@@ -103,33 +105,21 @@ public class GamePanel extends JPanel
 
 	private void DrawPlayerInputs(Graphics g)
 	{
-		int coordElement = 0;
-		for (int i = 0; i < field.length; i++)
+		for (int i = 0; i < 3; i++)
 		{
-			if (i == 0)
+			for (int j = 0; j < 3; j++)
 			{
-				coordElement = 0;
-			}
-			else
-			{
-				coordElement += 4;
-			}
-
-			if (field[i] == 1)
-			{
-				DrawCircle(g, fieldCoords[coordElement], fieldCoords[coordElement + 2]);
-			}
-			else if (field[i] == 2)
-			{
-				DrawCross(g, fieldCoords[coordElement], fieldCoords[coordElement + 2], fieldCoords[coordElement + 1],
-						fieldCoords[coordElement + 3]);
-			}
-			else
-			{
-				// System.out.println(pInput.field[i]);
+				if (Game.fields[i][j] == 1)
+				{
+					DrawCircle(g, Game.fieldCoordX[i][j], Game.fieldCoordY[i][j]);
+				}
+				else if (Game.fields[i][j] == 2)
+				{
+					DrawCross(g, Game.fieldCoordX[i][j], Game.fieldCoordY[i][j], Game.fieldCoordXEnd[i][j],
+							Game.fieldCoordYEnd[i][j]);
+				}
 			}
 		}
-
 	}
 
 	private void DrawField(Graphics g)
@@ -158,58 +148,18 @@ public class GamePanel extends JPanel
 
 	private void SetFieldCoords()
 	{
-		// Field 1
-		fieldCoords[0] = 0; // x1
-		fieldCoords[1] = 100; // x2
-		fieldCoords[2] = 0; // y1
-		fieldCoords[3] = 100; // y2
-
-		// Field 2
-		fieldCoords[4] = 100; // x1
-		fieldCoords[5] = 200; // x2
-		fieldCoords[6] = 0; // y1
-		fieldCoords[7] = 100; // y2
-
-		// Field 3
-		fieldCoords[8] = 200; // x1
-		fieldCoords[9] = 300; // x2
-		fieldCoords[10] = 0; // y1
-		fieldCoords[11] = 100; // y2
-
-		// Field 4
-		fieldCoords[12] = 0; // x1
-		fieldCoords[13] = 100; // x2
-		fieldCoords[14] = 100; // y1
-		fieldCoords[15] = 200; // y2
-
-		// Field 5
-		fieldCoords[16] = 100; // x1
-		fieldCoords[17] = 200; // x2
-		fieldCoords[18] = 100; // y1
-		fieldCoords[19] = 200; // y2
-
-		// Field 6
-		fieldCoords[20] = 200; // x1
-		fieldCoords[21] = 300; // x2
-		fieldCoords[22] = 100; // y1
-		fieldCoords[23] = 200; // y2
-
-		// Field 7
-		fieldCoords[24] = 0; // x1
-		fieldCoords[25] = 100; // x2
-		fieldCoords[26] = 200; // y1
-		fieldCoords[27] = 300; // y2
-
-		// Field 8
-		fieldCoords[28] = 100; // x1
-		fieldCoords[29] = 200; // x2
-		fieldCoords[30] = 200; // y1
-		fieldCoords[31] = 300; // y2
-
-		// Field 9
-		fieldCoords[32] = 200; // x1
-		fieldCoords[33] = 300; // x2
-		fieldCoords[34] = 200; // y1
-		fieldCoords[35] = 300; // y2
+		
+		int slotWidth = 100;
+		int slotHeight = 100;
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				Game.fieldCoordX[i][j] = slotWidth * j;
+				Game.fieldCoordXEnd[i][j] = (slotWidth * j) + slotWidth;
+				Game.fieldCoordY[i][j] = slotHeight * i;
+				Game.fieldCoordYEnd[i][j] = (slotHeight * i) + slotHeight;
+			}
+		}
 	}
 }
