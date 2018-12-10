@@ -15,7 +15,7 @@ public class Calc extends JFrame
 	
 	public static void main(String[] args)
 	{
-		//Set "llok and feel" to the active OS
+		//Set "look and feel" to the active OS
 		try
 		{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
