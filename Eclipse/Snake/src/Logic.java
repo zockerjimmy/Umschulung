@@ -1,6 +1,5 @@
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Logic
 {
@@ -18,12 +17,12 @@ public class Logic
 
 	protected boolean isGameOver;
 
-	protected enum direction
+	public enum direction
 	{
 		RIGHT, LEFT, UP, DOWN
 	};
 
-	protected direction eDirection = direction.DOWN;
+	public direction eDirection = direction.DOWN;
 
 	public Logic()
 	{
@@ -59,6 +58,16 @@ public class Logic
 //		snakeSizeY = 10;
 //		isGameOver = false;
 //	}
+	
+	public direction getDirection()
+	{		
+		return eDirection;
+	}
+	
+	public void setDirection(direction d)
+	{		
+		eDirection = d;
+	}
 
 	public void MoveSnake()
 	{
