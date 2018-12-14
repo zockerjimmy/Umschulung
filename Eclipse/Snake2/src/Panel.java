@@ -33,7 +33,7 @@ public class Panel extends JPanel
 	{
 		AddListenerTimer();
 		AddListenerKey();
-		timer = new Timer(500, listenerTimer);
+		timer = new Timer(250, listenerTimer);
 		timer.start();
 	}
 
