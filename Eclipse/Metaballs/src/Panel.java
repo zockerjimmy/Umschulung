@@ -26,7 +26,7 @@ public class Panel extends JPanel
 	int distance;
 	float temp;
 	int colSum;
-	Blob blobs[] = new Blob[4];
+	Blob blobs[] = new Blob[5];
 	ZJVector pixels[];
 	public Panel()
 	{

@@ -34,7 +34,7 @@ public class Panel extends JPanel
 	//##################################PURE GUI VARIABLES##########################################
 	
 	//Rectangles zur Positionierung
-	private Rectangle rControl, rInputPos, rInputAttr;
+	private Rectangle rControl, rInput1, rInput2;
 
 	//Buttons
 	private JButton btnStart, btnStop;
@@ -55,19 +55,25 @@ public class Panel extends JPanel
 	{
 		this.actualFrame = 0;
 		this.rControl = new Rectangle(rCanvas.width, 0, WINDOW_WIDTH - rCanvas.width, WINDOW_HEIGHT);
-		this.rInputPos = new Rectangle((int) (this.rControl.x * 1.005), (int) (this.rControl.height * 0.08),
-				(int) (this.rControl.width * 0.165), (int) (this.rControl.height * 0.05));
-		this.rInputAttr = new Rectangle((int) (this.rInputPos.x + this.rInputPos.width),
-				(int) (this.rControl.height * 0.08), (int) (this.rControl.width * 0.8),
-				(int) (this.rControl.height * 0.05));
+		
+		this.rInput1 = new Rectangle(this.rControl.x, (int) (this.rControl.height * 0.08),this.rControl.width, 40);
+		
+//		this.rInput2 = new Rectangle((int) (this.rInput1.x + this.rInput1.width),
+//				(int) (this.rControl.height * 0.08), (int) (this.rControl.width * 0.8),
+//				(int) (this.rControl.height * 0.05));
+		
+		this.rInput2 = new Rectangle(this.rControl.x, this.rInput1.y + this.rInput1.height + 1,this.rControl.width, 40);
+		
 		this.setBackground(Color.BLACK);
 		this.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
 		this.setFocusable(true);
 		AddListenerTime();
 		this.timer = new Timer(25, listenerTime);
 		CreateButtons();
-		CreateLabels();
-		CreateTextfields();
+		//CreateLabels();
+		//CreateTextfields();
+		CreateLabelsAndFields();
+		
 	}
 
 	public void CreateButtons()
@@ -113,7 +119,61 @@ public class Panel extends JPanel
 		this.btnStop.setLocation(this.btnStopPos);
 	}
 
-	public void CreateLabels()
+	public void CreateLabelsAndFields()
+	{
+		//https://docs.oracle.com/javase/tutorial/uiswing/layout/gridbag.html
+		
+		this.labelPosition = new JLabel("Position:");		
+		this.add(this.labelPosition);
+		this.labelPosition.setLocation((int) (this.rInput1.x + 5), (int) (this.rInput1.y));
+		this.labelPositionPos = this.labelPosition.getLocation();
+		
+		this.labelPositionX = new JLabel("X: ");
+		this.add(this.labelPositionX);
+		this.labelPositionX.setLocation((int) (this.rInput1.x + 5), (int) (this.rInput1.y + (this.rInput2.height * 0.5)));
+		this.labelPositionXPos = this.labelPositionX.getLocation();
+		
+		this.inputPosXText = new JTextField("0", 3);
+		this.add(this.inputPosXText);
+		this.inputPosXText.setLocation((int) (this.labelPositionXPos.x + 15), (int)(this.labelPositionXPos.y * 0.98));
+		this.inputPosXTextPos = this.inputPosXText.getLocation();
+		this.inputPosXText.setToolTipText("If '0' then x will assigned a random value");
+		
+		//###################################################################################################
+		
+		this.labelAttr = new JLabel("Attribute:");
+		this.add(this.labelAttr);
+		this.labelAttr.setLocation((int) (this.rInput2.x + 5), (int) (this.rInput2.y));
+		this.labelAttrPos = this.labelAttr.getLocation();
+		
+		this.labelRadius = new JLabel("Radius: ");
+		this.add(this.labelRadius);
+		this.labelRadius.setLocation((int) (this.rInput2.x + 5), (int) (this.rInput2.y + (this.rInput2.height*0.5)));
+		this.labelRadiusPos = this.labelRadius.getLocation();
+		
+		this.inputRadiusText = new JTextField("10", 2);
+		this.add(this.inputRadiusText);
+		System.out.println(this.labelRadius.getWidth());
+		this.inputRadiusText.setLocation((int) (this.labelRadiusPos.x + this.labelRadius.getWidth()), (int)(this.labelRadiusPos.y * 0.98));
+		this.inputRadiusTextPos = this.inputRadiusText.getLocation();
+		
+	}
+	
+	public void SetLabelsAndFields()
+	{
+		this.labelPosition.setLocation(this.labelPositionPos);
+		this.labelPositionX.setLocation(this.labelPositionXPos);
+		this.inputPosXText.setLocation(this.inputPosXTextPos);
+		
+		//##########################################################################################
+		
+		this.labelAttr.setLocation(this.labelAttrPos);
+		this.labelRadius.setLocation(this.labelRadiusPos);
+		this.inputRadiusText.setLocation(this.inputRadiusTextPos);
+		
+	}
+	
+	/*public void CreateLabels()
 	{
 		this.labelPosition = new JLabel("Position:");
 		this.labelPositionX = new JLabel("X: ");
@@ -152,9 +212,9 @@ public class Panel extends JPanel
 		this.labelRadius.setLocation(this.labelRadiusPos);
 		this.labelAcceleration.setLocation(this.labelAccelerationPos);
 		this.labelGravity.setLocation(this.labelGravityPos);
-	}
+	}*/
 
-	public void CreateTextfields()
+	/*public void CreateTextfields()
 	{
 		this.inputPosXText = new JTextField("0", 3);
 		this.inputRadiusText = new JTextField("10", 2);
@@ -186,7 +246,7 @@ public class Panel extends JPanel
 		this.inputRadiusText.setLocation(this.inputRadiusTextPos);
 		this.inputAccelerationText.setLocation(this.inputAccelerationTextPos);
 		this.inputGravityText.setLocation(this.inputGravityTextPos);
-	}
+	}*/
 
 	public void Repaint()
 	{
@@ -234,11 +294,12 @@ public class Panel extends JPanel
 		g.setColor(Color.DARK_GRAY);
 		g.fillRect(this.rControl.x, this.rControl.y, this.rControl.width, this.rControl.height);
 		g.setColor(Color.GRAY);
-		g.fillRect(this.rInputPos.x, this.rInputPos.y, this.rInputPos.width, this.rInputPos.height);
-		g.fillRect(this.rInputAttr.x, this.rInputAttr.y, this.rInputAttr.width, this.rInputAttr.height);
+		g.fillRect(this.rInput1.x, this.rInput1.y, this.rInput1.width, this.rInput1.height);
+		g.fillRect(this.rInput2.x, this.rInput2.y, this.rInput2.width, this.rInput2.height);
 		g.setColor(Color.BLACK);
 		SetButtons();
-		SetLabels();
-		SetTextfields();
+		SetLabelsAndFields();
+		//SetLabels();
+		//SetTextfields();
 	}
 }
