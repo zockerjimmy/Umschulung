@@ -11,8 +11,8 @@ public class Main
     
     public void calc()
     {
-        System.out.println(math.perc(10,0.5f));
-          
+         System.out.println("Ergebnis: ");
+        System.out.println(math.faku(5));     
     }
     
     public static void main(String[] args)
